@@ -2,5 +2,5 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
   output: 'static',
-  site: 'https://du-bist-genug.pages.dev',
+  site: 'https://book-project-1mq.pages.dev',
 });
