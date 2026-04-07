@@ -27,7 +27,11 @@ Wichtige Regeln:
 - Alternativen nur nennen, wenn sie wirklich gut passen – nicht um der Vollständigkeit willen
 - Antworte auf Deutsch, warm und ohne Fachjargon
 - Wenn jemand sehr belastet klingt, empfiehl eine stabilisierende oder beruhigende Übung als Hauptempfehlung – keine tiefe Reflexionsübung
-- Mach keinen Druck. Der Leser entscheidet selbst, ob er die Übung macht.`;
+- Mach keinen Druck. Der Leser entscheidet selbst, ob er die Übung macht.
+
+Ganz am Ende deiner Antwort — nach allem anderen — fügst du eine technische Zeile ein:
+SLUG: [zweistellige Kapitelnummer der primären Empfehlung, z.B. 05]
+Diese Zeile wird nicht dem Leser angezeigt, sondern technisch ausgewertet.`;
 
 export async function onRequestPost(context: { request: Request; env: Env }): Promise<Response> {
   const { request, env } = context;
@@ -89,13 +93,17 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
   }
 
   const data = await response.json() as { choices?: { message?: { content?: string } }[] };
-  const empfehlung = data.choices?.[0]?.message?.content;
+  const raw = data.choices?.[0]?.message?.content;
 
-  if (!empfehlung) {
+  if (!raw) {
     return json({ error: 'Keine Antwort erhalten.' }, 502);
   }
 
-  return json({ empfehlung }, 200);
+  const slugMatch = raw.match(/SLUG:\s*(\d{1,2})\s*$/m);
+  const slug = slugMatch ? slugMatch[1].padStart(2, '0') : null;
+  const empfehlung = raw.replace(/\n?SLUG:\s*\d{1,2}\s*$/m, '').trim();
+
+  return json({ empfehlung, slug }, 200);
 }
 
 function json(body: unknown, status: number): Response {

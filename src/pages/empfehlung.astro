@@ -23,6 +23,7 @@ import Base from '../layouts/Base.astro';
   <div id="result-area" hidden>
     <p id="loading-text" hidden>Einen Moment&#8230;</p>
     <div id="empfehlung-text" hidden></div>
+    <a id="uebung-link" href="#" hidden class="uebung-link">Zur &#220;bung &#8594;</a>
     <p id="error-text" class="error-text" hidden></p>
   </div>
 </Base>
@@ -34,6 +35,7 @@ import Base from '../layouts/Base.astro';
   const resultArea = document.getElementById('result-area') as HTMLDivElement;
   const loadingText = document.getElementById('loading-text') as HTMLParagraphElement;
   const empfehlungText = document.getElementById('empfehlung-text') as HTMLDivElement;
+  const uebungLink = document.getElementById('uebung-link') as HTMLAnchorElement;
   const errorText = document.getElementById('error-text') as HTMLParagraphElement;
 
   form.addEventListener('submit', async (e) => {
@@ -44,6 +46,7 @@ import Base from '../layouts/Base.astro';
     resultArea.hidden = false;
     loadingText.hidden = false;
     empfehlungText.hidden = true;
+    uebungLink.hidden = true;
     errorText.hidden = true;
     submitBtn.disabled = true;
 
@@ -54,7 +57,7 @@ import Base from '../layouts/Base.astro';
         body: JSON.stringify({ gefuehl }),
       });
 
-      let data: { empfehlung?: string; error?: string } = {};
+      let data: { empfehlung?: string; slug?: string; error?: string } = {};
       try {
         data = await res.json();
       } catch {
@@ -69,6 +72,12 @@ import Base from '../layouts/Base.astro';
       } else {
         empfehlungText.textContent = data.empfehlung ?? '';
         empfehlungText.hidden = false;
+        if (data.slug) {
+          uebungLink.href = `/kapitel/${data.slug}`;
+          uebungLink.hidden = false;
+        } else {
+          uebungLink.hidden = true;
+        }
       }
     } catch {
       errorText.textContent = 'Keine Verbindung m\u00f6glich. Bitte versuch es noch einmal.';
@@ -169,6 +178,21 @@ import Base from '../layouts/Base.astro';
     padding: 1.25rem;
     line-height: 1.75;
     white-space: pre-wrap;
+  }
+
+  .uebung-link {
+    display: inline-block;
+    margin-top: 1rem;
+    background-color: var(--color-accent);
+    color: #fff;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
+    font-size: 1rem;
+  }
+
+  .uebung-link:hover {
+    opacity: 0.85;
   }
 
   .error-text {
