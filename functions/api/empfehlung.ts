@@ -73,7 +73,8 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
   }
 
   if (!response.ok) {
-    return json({ error: 'Fehler beim KI-Dienst.' }, 502);
+    const errorBody = await response.text().catch(() => '');
+    return json({ error: `Fehler beim KI-Dienst (${response.status}): ${errorBody.slice(0, 200)}` }, 502);
   }
 
   const data = await response.json() as { choices?: { message?: { content?: string } }[] };
