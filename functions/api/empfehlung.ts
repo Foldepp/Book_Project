@@ -49,32 +49,43 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
     return json({ error: 'API-Schlüssel nicht konfiguriert.' }, 500);
   }
 
-  let response: Response;
-  try {
-    response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'qwen/qwen3.6-plus:free',
-        messages: [
-          {
-            role: 'system',
-            content: `${SYSTEM_PROMPT}\n\nHier sind alle verfügbaren Übungen:\n\n${uebungenContent}`,
-          },
-          { role: 'user', content: gefuehl },
-        ],
-      }),
-    });
-  } catch {
+  const models = [
+    'qwen/qwen3.6-plus:free',
+    'nvidia/nemotron-3-super-120b-a12b:free',
+    'arcee-ai/trinity-large-preview:free',
+  ];
+
+  const messages = [
+    {
+      role: 'system',
+      content: `${SYSTEM_PROMPT}\n\nHier sind alle verfügbaren Übungen:\n\n${uebungenContent}`,
+    },
+    { role: 'user', content: gefuehl },
+  ];
+
+  let response: Response | null = null;
+  for (const model of models) {
+    try {
+      response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ model, messages }),
+      });
+    } catch {
+      continue;
+    }
+    if (response.status !== 429 && response.status !== 503) break;
+  }
+
+  if (!response) {
     return json({ error: 'Verbindung zum KI-Dienst fehlgeschlagen.' }, 502);
   }
 
   if (!response.ok) {
-    const errorBody = await response.text().catch(() => '');
-    return json({ error: `Fehler beim KI-Dienst (${response.status}): ${errorBody.slice(0, 200)}` }, 502);
+    return json({ error: 'Der KI-Dienst ist gerade überlastet. Bitte versuch es in einem Moment noch einmal.' }, 503);
   }
 
   const data = await response.json() as { choices?: { message?: { content?: string } }[] };

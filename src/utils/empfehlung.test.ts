@@ -65,15 +65,15 @@ describe('onRequestPost', () => {
     expect(body.empfehlung).toContain('Vagusatmung');
   });
 
-  it('returns 502 when OpenRouter responds with an error status', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, text: async () => 'error' }));
+  it('returns 503 when all models fail', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500, text: async () => 'error' }));
 
     const res = await onRequestPost({
       request: makeRequest({ gefuehl: 'Ich bin müde.' }),
       env: mockEnv,
     });
 
-    expect(res.status).toBe(502);
+    expect(res.status).toBe(503);
   });
 
   it('returns 502 when fetch throws a network error', async () => {
