@@ -54,7 +54,14 @@ import Base from '../layouts/Base.astro';
         body: JSON.stringify({ gefuehl }),
       });
 
-      const data = await res.json() as { empfehlung?: string; error?: string };
+      let data: { empfehlung?: string; error?: string } = {};
+      try {
+        data = await res.json();
+      } catch {
+        errorText.textContent = `Serverfehler (${res.status}). Bitte versuch es noch einmal.`;
+        errorText.hidden = false;
+        return;
+      }
 
       if (!res.ok || data.error) {
         errorText.textContent = data.error ?? 'Ein Fehler ist aufgetreten. Bitte versuch es noch einmal.';
