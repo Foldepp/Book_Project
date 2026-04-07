@@ -25,3 +25,4 @@ playwright-report/
 # AI Key
 .env.local
 .env
+package-lock.json
