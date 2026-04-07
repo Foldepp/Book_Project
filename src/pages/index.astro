@@ -1,0 +1,75 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Du bist genug">
+  <div class="home">
+    <h1>Du bist genug</h1>
+    <p class="subtitle">Audio-Begleitung zum Buch</p>
+    <p class="intro">
+      Sch&#246;n, dass du hier bist. Diese Seite begleitet dich durch die &#220;bungen aus dem Buch.
+      Such dir einfach den Einstieg, der gerade am besten zu dir passt.
+    </p>
+    <nav class="entry-nav">
+      <a href="/kapitel" class="entry-btn">Ich bin gerade im Buch</a>
+      <a href="/empfehlung" class="entry-btn">Ich m&#246;chte eine &#220;bung starten</a>
+      <a href="/kapitel" class="entry-btn">Ich m&#246;chte mich erst orientieren</a>
+    </nav>
+  </div>
+</Base>
+
+<style>
+  .home {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .subtitle {
+    color: var(--color-text-muted);
+    font-size: 0.9375rem;
+    margin-bottom: 0;
+  }
+
+  .intro {
+    font-size: 1rem;
+    line-height: 1.7;
+    max-width: 520px;
+  }
+
+  .entry-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .entry-btn {
+    display: block;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    text-decoration: none;
+    color: var(--color-text);
+    font-size: 1rem;
+    transition: border-color 0.15s;
+  }
+
+  .entry-btn:hover {
+    border-color: var(--color-accent);
+    opacity: 1;
+  }
+
+  @media (min-width: 640px) {
+    .entry-nav {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .entry-btn {
+      flex: 1;
+      min-width: 180px;
+      text-align: center;
+    }
+  }
+</style>

@@ -1,0 +1,75 @@
+---
+import Base from '../../layouts/Base.astro';
+import AudioPlayer from '../../components/AudioPlayer.astro';
+import { chapters } from '../../data/chapters';
+
+export async function getStaticPaths() {
+  return chapters.map((chapter) => ({
+    params: { slug: chapter.slug },
+    props: { chapter },
+  }));
+}
+
+const { chapter } = Astro.props;
+
+const beduerfnisLabel: Record<string, string> = {
+  runterkommen: 'Runterkommen',
+  stabilisieren: 'Stabilisieren',
+  nachspueren: 'Nachsp&#252;ren',
+};
+
+const dauerLabel: Record<string, string> = {
+  '2min': '2 Min.',
+  '5min': '5 Min.',
+  '10min': '10 Min.',
+};
+---
+<Base title={`${chapter.titel} — Du bist genug`}>
+  <a href="/kapitel" class="back-link">&#8592; Alle &#220;bungen</a>
+
+  <div class="chapter-meta">
+    <span class="tag">{beduerfnisLabel[chapter.beduerfnis]}</span>
+    <span class="tag">{dauerLabel[chapter.dauer]}</span>
+  </div>
+
+  <h1>{chapter.titel}</h1>
+  <p class="context">{chapter.kapitelkontext}</p>
+
+  <AudioPlayer audioUrl={chapter.audioUrl} textalternative={chapter.textalternative} />
+</Base>
+
+<style>
+  .back-link {
+    display: inline-block;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+  }
+
+  .back-link:hover {
+    color: var(--color-text);
+    opacity: 1;
+  }
+
+  .chapter-meta {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .tag {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    background-color: var(--color-accent-light);
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+
+  .context {
+    color: var(--color-text-muted);
+    font-size: 0.9375rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.7;
+  }
+</style>

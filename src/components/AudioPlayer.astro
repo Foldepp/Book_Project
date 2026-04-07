@@ -1,0 +1,77 @@
+---
+interface Props {
+  audioUrl: string;
+  textalternative: string;
+}
+
+const { audioUrl, textalternative } = Astro.props;
+const hasAudio = audioUrl.length > 0;
+---
+<div class="audio-section">
+  {hasAudio ? (
+    <audio controls class="player">
+      <source src={audioUrl} type="audio/mpeg" />
+      Dein Browser unterstützt kein Audio. Bitte lies die Übungsanleitung unten.
+    </audio>
+  ) : (
+    <div class="audio-placeholder">
+      Die Audiodatei wird in Kürze verfügbar sein.
+    </div>
+  )}
+
+  <details class="text-alternative">
+    <summary>Übungstext lesen</summary>
+    <div class="text-content">
+      <p>{textalternative}</p>
+    </div>
+  </details>
+</div>
+
+<style>
+  .audio-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .player {
+    width: 100%;
+    accent-color: var(--color-accent);
+  }
+
+  .audio-placeholder {
+    background-color: var(--color-accent-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    color: var(--color-text-muted);
+    font-size: 0.9375rem;
+  }
+
+  .text-alternative {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .text-alternative summary {
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    color: var(--color-text-muted);
+    background-color: var(--color-surface);
+    user-select: none;
+  }
+
+  .text-alternative summary:hover {
+    color: var(--color-text);
+  }
+
+  .text-content {
+    padding: 1.25rem;
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    font-size: 0.9375rem;
+    line-height: 1.7;
+  }
+</style>

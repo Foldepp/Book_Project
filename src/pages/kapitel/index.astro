@@ -1,0 +1,102 @@
+---
+import Base from '../../layouts/Base.astro';
+import ChapterCard from '../../components/ChapterCard.astro';
+import FilterBar from '../../components/FilterBar.astro';
+import { chapters } from '../../data/chapters';
+import { getActiveChapters } from '../../utils/chapters';
+
+const activeChapters = getActiveChapters(chapters);
+---
+<Base title="&#220;bungen — Du bist genug">
+  <a href="/" class="back-link">&#8592; Zur&#252;ck</a>
+  <h1>&#220;bungen</h1>
+  <p class="intro">W&#228;hle eine &#220;bung, die gerade zu dir passt.</p>
+
+  <FilterBar />
+
+  <div class="card-grid" id="chapter-grid">
+    {activeChapters.map((chapter) => (
+      <ChapterCard chapter={chapter} />
+    ))}
+  </div>
+
+  <p class="empty-hint" id="empty-hint" hidden>
+    Keine &#220;bungen f&#252;r diese Auswahl. Versuch eine andere Kombination.
+  </p>
+</Base>
+
+<script>
+  type FilterState = {
+    beduerfnis: string | null;
+    dauer: string | null;
+  };
+
+  const state: FilterState = { beduerfnis: null, dauer: null };
+  const grid = document.getElementById('chapter-grid');
+  const emptyHint = document.getElementById('empty-hint');
+  const filterButtons = document.querySelectorAll<HTMLButtonElement>('[data-filter-type]');
+  const cards = document.querySelectorAll<HTMLElement>('[data-beduerfnis]');
+
+  function updateUI() {
+    let visibleCount = 0;
+    cards.forEach((card) => {
+      const matchB = !state.beduerfnis || card.dataset.beduerfnis === state.beduerfnis;
+      const matchD = !state.dauer || card.dataset.dauer === state.dauer;
+      card.hidden = !(matchB && matchD);
+      if (!card.hidden) visibleCount++;
+    });
+
+    if (emptyHint) emptyHint.hidden = visibleCount > 0;
+
+    filterButtons.forEach((btn) => {
+      const type = btn.dataset.filterType as keyof FilterState;
+      const value = btn.dataset.filterValue ?? '';
+      btn.classList.toggle('active', state[type] === value);
+    });
+  }
+
+  filterButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const type = btn.dataset.filterType as keyof FilterState;
+      const value = btn.dataset.filterValue ?? '';
+      state[type] = state[type] === value ? null : value;
+      updateUI();
+    });
+  });
+</script>
+
+<style>
+  .back-link {
+    display: inline-block;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+  }
+
+  .back-link:hover {
+    color: var(--color-text);
+    opacity: 1;
+  }
+
+  .intro {
+    color: var(--color-text-muted);
+    font-size: 0.9375rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .card-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .empty-hint {
+    color: var(--color-text-muted);
+    font-size: 0.9375rem;
+    text-align: center;
+    padding: 2rem 0;
+    margin-bottom: 0;
+  }
+</style>

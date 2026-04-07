@@ -1,0 +1,171 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Welche Übung passt zu dir? — Du bist genug">
+  <a href="/" class="back-link">&#8592; Zur&#252;ck</a>
+  <h1>Welche &#220;bung passt gerade zu dir?</h1>
+  <p class="intro">
+    Beschreib kurz, wie es dir geht &#8212; die KI empfiehlt dir die passende &#220;bung aus dem Buch.
+  </p>
+
+  <form id="empfehlung-form">
+    <textarea
+      id="gefuehl-input"
+      name="gefuehl"
+      placeholder="Beschreib kurz, wie es dir gerade geht&#8230;"
+      rows="4"
+      required
+    ></textarea>
+    <p class="datenschutz">Deine Eingabe wird an einen KI-Dienst &#252;bertragen und nicht gespeichert.</p>
+    <button type="submit" id="submit-btn">&#220;bung finden</button>
+  </form>
+
+  <div id="result-area" hidden>
+    <p id="loading-text" hidden>Einen Moment&#8230;</p>
+    <div id="empfehlung-text" hidden></div>
+    <p id="error-text" class="error-text" hidden></p>
+  </div>
+</Base>
+
+<script>
+  const form = document.getElementById('empfehlung-form') as HTMLFormElement;
+  const input = document.getElementById('gefuehl-input') as HTMLTextAreaElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const resultArea = document.getElementById('result-area') as HTMLDivElement;
+  const loadingText = document.getElementById('loading-text') as HTMLParagraphElement;
+  const empfehlungText = document.getElementById('empfehlung-text') as HTMLDivElement;
+  const errorText = document.getElementById('error-text') as HTMLParagraphElement;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const gefuehl = input.value.trim();
+    if (!gefuehl) return;
+
+    resultArea.hidden = false;
+    loadingText.hidden = false;
+    empfehlungText.hidden = true;
+    errorText.hidden = true;
+    submitBtn.disabled = true;
+
+    try {
+      const res = await fetch('/api/empfehlung', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gefuehl }),
+      });
+
+      const data = await res.json() as { empfehlung?: string; error?: string };
+
+      if (!res.ok || data.error) {
+        errorText.textContent = data.error ?? 'Ein Fehler ist aufgetreten. Bitte versuch es noch einmal.';
+        errorText.hidden = false;
+      } else {
+        empfehlungText.textContent = data.empfehlung ?? '';
+        empfehlungText.hidden = false;
+      }
+    } catch {
+      errorText.textContent = 'Keine Verbindung m\u00f6glich. Bitte versuch es noch einmal.';
+      errorText.hidden = false;
+    } finally {
+      loadingText.hidden = true;
+      submitBtn.disabled = false;
+    }
+  });
+</script>
+
+<style>
+  .back-link {
+    display: inline-block;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+  }
+
+  .back-link:hover {
+    color: var(--color-text);
+    opacity: 1;
+  }
+
+  .intro {
+    color: var(--color-text-muted);
+    font-size: 0.9375rem;
+    margin-bottom: 1.5rem;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  textarea:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+    border-color: var(--color-accent);
+  }
+
+  .datenschutz {
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    margin-bottom: 0;
+  }
+
+  button {
+    align-self: flex-start;
+    background-color: var(--color-accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.75rem 1.5rem;
+    font-family: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  button:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  #result-area {
+    margin-top: 2rem;
+  }
+
+  #loading-text {
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  #empfehlung-text {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    line-height: 1.75;
+    white-space: pre-wrap;
+  }
+
+  .error-text {
+    color: #b94040;
+    font-size: 0.9375rem;
+  }
+</style>

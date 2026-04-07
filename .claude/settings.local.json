@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm info:*)",
+      "Bash(npm install:*)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\cwick\\\\OneDrive\\\\projects\\\\Webpage\\\\Claude\\\\src\\\\pages\")",
+      "Bash(npx astro:*)",
+      "Bash(npm test:*)",
+      "Bash(npx playwright:*)",
+      "Bash(npm run:*)",
+      "Bash(claude config:*)",
+      "Bash(claude:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(node:*)"
+    ]
+  }
+}

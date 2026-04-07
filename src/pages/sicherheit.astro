@@ -1,0 +1,62 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Pause — Du bist genug">
+  <a href="/kapitel" class="back-link">&#8592; Zur&#252;ck zu den &#220;bungen</a>
+
+  <h1>Pause &#8212; zu viel?</h1>
+
+  <div class="content">
+    <p>
+      Manchmal bringt eine &#220;bung mehr an die Oberfl&#228;che, als wir erwartet haben.
+      Das ist kein Fehler &#8212; aber es ist ein Zeichen, jetzt innezuhalten.
+    </p>
+    <p>
+      Leg das Buch und die &#220;bung f&#252;r einen Moment beiseite.
+      Atme. Trink ein Glas Wasser. G&#246;nn dir eine Pause.
+    </p>
+    <p>
+      Wenn du merkst, dass dich das Gef&#252;hl nicht l&#228;sst, sprich mit jemandem,
+      dem du vertraust &#8212; oder wende dich an eine professionelle Begleitung.
+    </p>
+    <p class="support">
+      <strong>Telefonseelsorge (kostenlos, 24/7):</strong><br />
+      0800 111 0 111 &nbsp;|&nbsp; 0800 111 0 222
+    </p>
+    <p>
+      Die &#220;bungen werden auf dich warten, wenn du bereit bist.
+      Du musst heute nichts leisten.
+    </p>
+  </div>
+</Base>
+
+<style>
+  .back-link {
+    display: inline-block;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+  }
+
+  .back-link:hover {
+    color: var(--color-text);
+    opacity: 1;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    max-width: 520px;
+    line-height: 1.75;
+  }
+
+  .support {
+    background-color: var(--color-accent-light);
+    border-left: 3px solid var(--color-accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+  }
+</style>
