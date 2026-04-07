@@ -66,7 +66,7 @@ describe('onRequestPost', () => {
   });
 
   it('returns 502 when OpenRouter responds with an error status', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }));
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, text: async () => 'error' }));
 
     const res = await onRequestPost({
       request: makeRequest({ gefuehl: 'Ich bin müde.' }),
@@ -106,7 +106,7 @@ describe('onRequestPost', () => {
       model: string;
       messages: { role: string; content: string }[];
     };
-    expect(body.model).toBe('google/gemini-flash-1.5');
+    expect(body.model).toBe('google/gemini-2.0-flash-exp:free');
     expect(body.messages[0].role).toBe('system');
     expect(body.messages[0].content).toContain('Kapitel');
     expect(body.messages[1].role).toBe('user');

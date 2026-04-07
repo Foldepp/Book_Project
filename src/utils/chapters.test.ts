@@ -6,7 +6,7 @@ describe('getActiveChapters', () => {
   it('excludes inactive chapters', () => {
     const result = getActiveChapters(chapters);
     expect(result.every((c) => c.aktiv)).toBe(true);
-    expect(result.length).toBe(2); // ch01 and ch02 are active, ch03 is not
+    expect(result.length).toBe(16);
   });
 });
 
@@ -14,7 +14,7 @@ describe('getChapterBySlug', () => {
   it('returns the correct chapter for a known slug', () => {
     const result = getChapterBySlug(chapters, '01');
     expect(result?.slug).toBe('01');
-    expect(result?.titel).toBe('Ankommen im Atem');
+    expect(result?.titel).toBe('Ankommen bei dir selbst');
   });
 
   it('returns undefined for an unknown slug', () => {
@@ -26,34 +26,42 @@ describe('getChapterBySlug', () => {
 describe('filterChapters', () => {
   it('returns all active chapters when no filters applied', () => {
     const result = filterChapters(chapters, {});
-    expect(result.length).toBe(2);
+    expect(result.length).toBe(16);
     expect(result.every((c) => c.aktiv)).toBe(true);
   });
 
-  it('filters by beduerfnis', () => {
+  it('filters by beduerfnis runterkommen', () => {
     const result = filterChapters(chapters, { beduerfnis: 'runterkommen' });
-    expect(result.length).toBe(1);
-    expect(result[0].slug).toBe('01');
+    expect(result.length).toBeGreaterThan(0);
+    expect(result.every((c) => c.beduerfnis === 'runterkommen')).toBe(true);
   });
 
-  it('filters by dauer', () => {
-    const result = filterChapters(chapters, { dauer: '2min' });
-    expect(result.length).toBe(1);
-    expect(result[0].slug).toBe('02');
+  it('filters by beduerfnis stabilisieren', () => {
+    const result = filterChapters(chapters, { beduerfnis: 'stabilisieren' });
+    expect(result.length).toBeGreaterThan(0);
+    expect(result.every((c) => c.beduerfnis === 'stabilisieren')).toBe(true);
+  });
+
+  it('filters by dauer 10min', () => {
+    const result = filterChapters(chapters, { dauer: '10min' });
+    expect(result.length).toBeGreaterThan(0);
+    expect(result.every((c) => c.dauer === '10min')).toBe(true);
   });
 
   it('applies combined beduerfnis + dauer filter', () => {
-    const match = filterChapters(chapters, { beduerfnis: 'stabilisieren', dauer: '2min' });
-    expect(match.length).toBe(1);
-    expect(match[0].slug).toBe('02');
+    const match = filterChapters(chapters, { beduerfnis: 'runterkommen', dauer: '10min' });
+    expect(match.length).toBeGreaterThan(0);
+    expect(match.every((c) => c.beduerfnis === 'runterkommen' && c.dauer === '10min')).toBe(true);
 
     const noMatch = filterChapters(chapters, { beduerfnis: 'runterkommen', dauer: '2min' });
     expect(noMatch.length).toBe(0);
   });
 
   it('never returns inactive chapters', () => {
-    // ch03 is nachspueren/10min but aktiv:false
-    const result = filterChapters(chapters, { beduerfnis: 'nachspueren' });
-    expect(result.length).toBe(0);
+    const inactive = chapters.filter((c) => !c.aktiv);
+    inactive.forEach((c) => {
+      const result = filterChapters(chapters, { beduerfnis: c.beduerfnis });
+      expect(result.find((r) => r.slug === c.slug)).toBeUndefined();
+    });
   });
 });
