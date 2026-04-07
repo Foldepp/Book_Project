@@ -58,7 +58,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.1-8b-instruct:free',
+        model: 'qwen/qwen3.6-plus:free',
         messages: [
           {
             role: 'system',

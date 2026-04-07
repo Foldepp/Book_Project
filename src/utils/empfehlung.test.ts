@@ -106,7 +106,7 @@ describe('onRequestPost', () => {
       model: string;
       messages: { role: string; content: string }[];
     };
-    expect(body.model).toBe('meta-llama/llama-3.1-8b-instruct:free');
+    expect(body.model).toBe('qwen/qwen3.6-plus:free');
     expect(body.messages[0].role).toBe('system');
     expect(body.messages[0].content).toContain('Kapitel');
     expect(body.messages[1].role).toBe('user');
