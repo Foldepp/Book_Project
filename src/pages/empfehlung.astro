@@ -30,7 +30,24 @@ import Base from '../layouts/Base.astro';
       </a>
       <div id="alternativen-bereich" hidden>
         <p class="alternativen-label">Weitere M&#246;glichkeiten</p>
-        <div id="alternativen-liste"></div>
+        <div id="alternativen-liste">
+          <a id="alt-card-0" href="#" class="card" hidden>
+            <div class="card-meta">
+              <span class="tag" id="alt-beduerfnis-0"></span>
+              <span class="tag" id="alt-dauer-0"></span>
+            </div>
+            <h2 id="alt-titel-0"></h2>
+            <p id="alt-grund-0"></p>
+          </a>
+          <a id="alt-card-1" href="#" class="card" hidden>
+            <div class="card-meta">
+              <span class="tag" id="alt-beduerfnis-1"></span>
+              <span class="tag" id="alt-dauer-1"></span>
+            </div>
+            <h2 id="alt-titel-1"></h2>
+            <p id="alt-grund-1"></p>
+          </a>
+        </div>
       </div>
     </div>
     <p id="error-text" class="error-text" hidden></p>
@@ -61,7 +78,13 @@ import Base from '../layouts/Base.astro';
   const cardBeduerfnis = document.getElementById('card-beduerfnis') as HTMLSpanElement;
   const cardDauer = document.getElementById('card-dauer') as HTMLSpanElement;
   const alternativenBereich = document.getElementById('alternativen-bereich') as HTMLDivElement;
-  const alternativenListe = document.getElementById('alternativen-liste') as HTMLDivElement;
+  const altCards = [0, 1].map((i) => ({
+    card: document.getElementById(`alt-card-${i}`) as HTMLAnchorElement,
+    beduerfnis: document.getElementById(`alt-beduerfnis-${i}`) as HTMLSpanElement,
+    dauer: document.getElementById(`alt-dauer-${i}`) as HTMLSpanElement,
+    titel: document.getElementById(`alt-titel-${i}`) as HTMLHeadingElement,
+    grund: document.getElementById(`alt-grund-${i}`) as HTMLParagraphElement,
+  }));
   const errorText = document.getElementById('error-text') as HTMLParagraphElement;
 
   type Alt = { slug: string; titel: string; beduerfnis: string; dauer: string; grund: string };
@@ -113,25 +136,20 @@ import Base from '../layouts/Base.astro';
       }
 
       const alts = data.alternativen ?? [];
-      if (alts.length > 0) {
-        alternativenListe.innerHTML = '';
-        alts.forEach((alt) => {
-          const a = document.createElement('a');
-          a.href = `/kapitel/${alt.slug}`;
-          a.className = 'card alt-card';
-          a.innerHTML = `
-            <div class="card-meta">
-              <span class="tag">${beduerfnisLabel[alt.beduerfnis] ?? ''}</span>
-              <span class="tag">${dauerLabel[alt.dauer] ?? ''}</span>
-            </div>
-            <h2>${alt.titel}</h2>
-            <p>${alt.grund}</p>`;
-          alternativenListe.appendChild(a);
-        });
-        alternativenBereich.hidden = false;
-      } else {
-        alternativenBereich.hidden = true;
-      }
+      altCards.forEach((slot, i) => {
+        const alt = alts[i];
+        if (alt) {
+          slot.card.href = `/kapitel/${alt.slug}`;
+          slot.beduerfnis.textContent = beduerfnisLabel[alt.beduerfnis] ?? '';
+          slot.dauer.textContent = dauerLabel[alt.dauer] ?? '';
+          slot.titel.textContent = alt.titel;
+          slot.grund.textContent = alt.grund;
+          slot.card.hidden = false;
+        } else {
+          slot.card.hidden = true;
+        }
+      });
+      alternativenBereich.hidden = alts.length === 0;
 
       empfehlungOutput.hidden = false;
     } catch {
@@ -282,6 +300,12 @@ import Base from '../layouts/Base.astro';
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+  }
+
+  #alternativen-liste .card p {
+    font-size: 0.9375rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0;
   }
 
   .error-text {
