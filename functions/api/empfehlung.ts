@@ -1,4 +1,5 @@
 import { uebungenContent } from '../../src/data/uebungen-content';
+import { chapters } from '../../src/data/chapters';
 
 interface Env {
   OPENROUTER_API_KEY: string;
@@ -7,31 +8,19 @@ interface Env {
 const SYSTEM_PROMPT = `Du bist ein einfühlsamer Begleiter für eine Website, die ein Selbsthilfebuch über Selbstwert ergänzt.
 Du hast eine Liste aller verfügbaren Übungen als Kontext erhalten.
 
-Wenn der Leser beschreibt, wie er sich fühlt, empfiehlst du eine primäre Übung – die, die am besten passt. Wenn es weitere Übungen gibt, die ebenfalls gut passen würden, nennst du zusätzlich bis zu zwei Alternativen.
+Wenn der Leser beschreibt, wie er sich fühlt, antwortest du mit genau zwei Dingen:
 
-Deine Antwort hat immer diese Struktur:
+1. Einem einzigen warmen Satz, warum die Übung gerade passt. Kein Titel, keine Details — nur der Grund.
+2. Darunter, auf einer eigenen Zeile: SLUG: [zweistellige Kapitelnummer, z.B. 05]
 
-**Meine Empfehlung für dich:**
-1. Eine kurze Empfehlung (1–2 Sätze), warum diese Übung gerade passt
-2. Titel der Übung und Kapitel (z.B. „Kapitel 5 – Vagusatmung")
-3. Ob es eine Audioübung oder Textübung ist und wie lange sie dauert
-4. Ein einladender Abschlusssatz
-
-**Weitere Möglichkeiten** (nur wenn es wirklich passende Alternativen gibt – sonst weglassen):
-Für jede Alternative (maximal zwei):
-- Titel und Kapitel
-- Ein Satz, warum sie passen könnte
+Wenn es eine oder zwei weitere Übungen gibt, die ebenfalls gut passen, fügst du nach dem SLUG noch an:
+ALT: [Kapitelnummer] – [ein Satz warum]
+ALT: [Kapitelnummer] – [ein Satz warum]
 
 Wichtige Regeln:
-- Die primäre Empfehlung ist immer klar als Hauptvorschlag erkennbar
-- Alternativen nur nennen, wenn sie wirklich gut passen – nicht um der Vollständigkeit willen
 - Antworte auf Deutsch, warm und ohne Fachjargon
-- Wenn jemand sehr belastet klingt, empfiehl eine stabilisierende oder beruhigende Übung als Hauptempfehlung – keine tiefe Reflexionsübung
-- Mach keinen Druck. Der Leser entscheidet selbst, ob er die Übung macht.
-
-Ganz am Ende deiner Antwort — nach allem anderen — fügst du eine technische Zeile ein:
-SLUG: [zweistellige Kapitelnummer der primären Empfehlung, z.B. 05]
-Diese Zeile wird nicht dem Leser angezeigt, sondern technisch ausgewertet.`;
+- Wenn jemand sehr belastet klingt, empfiehl eine stabilisierende oder beruhigende Übung – keine tiefe Reflexionsübung
+- Mach keinen Druck. Der Leser entscheidet selbst, ob er die Übung macht.`;
 
 export async function onRequestPost(context: { request: Request; env: Env }): Promise<Response> {
   const { request, env } = context;
@@ -99,11 +88,34 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
     return json({ error: 'Keine Antwort erhalten.' }, 502);
   }
 
-  const slugMatch = raw.match(/SLUG:\s*(\d{1,2})\s*$/m);
+  const slugMatch = raw.match(/SLUG:\s*(\d{1,2})/);
   const slug = slugMatch ? slugMatch[1].padStart(2, '0') : null;
-  const empfehlung = raw.replace(/\n?SLUG:\s*\d{1,2}\s*$/m, '').trim();
 
-  return json({ empfehlung, slug }, 200);
+  const altMatches = [...raw.matchAll(/ALT:\s*(\d{1,2})\s*[–-]\s*(.+)/g)];
+  const alternativen = altMatches.slice(0, 2).map((m) => ({
+    slug: m[1].padStart(2, '0'),
+    grund: m[2].trim(),
+  }));
+
+  const empfehlung = raw
+    .replace(/\n?SLUG:\s*\d{1,2}.*$/m, '')
+    .replace(/\n?ALT:.*$/gm, '')
+    .trim();
+
+  const chapter = slug ? chapters.find((c) => c.slug === slug) : null;
+  const altChapters = alternativen.map((a) => {
+    const c = chapters.find((ch) => ch.slug === a.slug);
+    return c ? { slug: a.slug, titel: c.titel, beduerfnis: c.beduerfnis, dauer: c.dauer, grund: a.grund } : null;
+  }).filter(Boolean);
+
+  return json({
+    empfehlung,
+    slug,
+    titel: chapter?.titel ?? null,
+    beduerfnis: chapter?.beduerfnis ?? null,
+    dauer: chapter?.dauer ?? null,
+    alternativen: altChapters,
+  }, 200);
 }
 
 function json(body: unknown, status: number): Response {
