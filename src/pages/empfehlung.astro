@@ -1,9 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
 ---
-<Base title="Welche Übung passt zu dir? — Du bist genug">
+<Base title="Übung finden — Du bist genug">
   <a href="/" class="back-link">&#8592; Zur&#252;ck</a>
-  <h1>Welche &#220;bung passt gerade zu dir?</h1>
+
+  <div class="eyebrow">Pers&#246;nliche Empfehlung</div>
+  <h1>Wie geht es dir<br /><em>gerade?</em></h1>
 
   <form id="empfehlung-form">
     <textarea
@@ -19,37 +21,50 @@ import Base from '../layouts/Base.astro';
 
   <div id="result-area" hidden>
     <p id="loading-text" hidden>Einen Moment&#8230;</p>
+
     <div id="empfehlung-output" hidden>
       <p id="empfehlung-text" class="empfehlung-satz"></p>
+
       <a id="uebung-card" href="#" class="card" hidden>
         <div class="card-meta">
           <span id="card-beduerfnis" class="tag"></span>
-          <span id="card-dauer" class="tag"></span>
+          <span id="card-dauer" class="tag tag-dauer">
+            <span class="material-symbols-outlined">schedule</span>
+            <span id="card-dauer-text"></span>
+          </span>
         </div>
         <h2 id="card-titel"></h2>
       </a>
+
       <div id="alternativen-bereich" hidden>
         <p class="alternativen-label">Weitere M&#246;glichkeiten</p>
         <div id="alternativen-liste">
           <a id="alt-card-0" href="#" class="card" hidden>
             <div class="card-meta">
               <span class="tag" id="alt-beduerfnis-0"></span>
-              <span class="tag" id="alt-dauer-0"></span>
+              <span class="tag tag-dauer" id="alt-dauer-wrap-0">
+                <span class="material-symbols-outlined">schedule</span>
+                <span id="alt-dauer-0"></span>
+              </span>
             </div>
             <h2 id="alt-titel-0"></h2>
-            <p id="alt-grund-0"></p>
+            <p id="alt-grund-0" class="alt-grund"></p>
           </a>
           <a id="alt-card-1" href="#" class="card" hidden>
             <div class="card-meta">
               <span class="tag" id="alt-beduerfnis-1"></span>
-              <span class="tag" id="alt-dauer-1"></span>
+              <span class="tag tag-dauer" id="alt-dauer-wrap-1">
+                <span class="material-symbols-outlined">schedule</span>
+                <span id="alt-dauer-1"></span>
+              </span>
             </div>
             <h2 id="alt-titel-1"></h2>
-            <p id="alt-grund-1"></p>
+            <p id="alt-grund-1" class="alt-grund"></p>
           </a>
         </div>
       </div>
     </div>
+
     <p id="error-text" class="error-text" hidden></p>
   </div>
 </Base>
@@ -76,7 +91,7 @@ import Base from '../layouts/Base.astro';
   const uebungCard = document.getElementById('uebung-card') as HTMLAnchorElement;
   const cardTitel = document.getElementById('card-titel') as HTMLHeadingElement;
   const cardBeduerfnis = document.getElementById('card-beduerfnis') as HTMLSpanElement;
-  const cardDauer = document.getElementById('card-dauer') as HTMLSpanElement;
+  const cardDauerText = document.getElementById('card-dauer-text') as HTMLSpanElement;
   const alternativenBereich = document.getElementById('alternativen-bereich') as HTMLDivElement;
   const altCards = [0, 1].map((i) => ({
     card: document.getElementById(`alt-card-${i}`) as HTMLAnchorElement,
@@ -129,7 +144,7 @@ import Base from '../layouts/Base.astro';
         uebungCard.href = `/kapitel/${data.slug}`;
         cardTitel.textContent = data.titel;
         cardBeduerfnis.textContent = beduerfnisLabel[data.beduerfnis ?? ''] ?? '';
-        cardDauer.textContent = dauerLabel[data.dauer ?? ''] ?? '';
+        cardDauerText.textContent = dauerLabel[data.dauer ?? ''] ?? '';
         uebungCard.hidden = false;
       } else {
         uebungCard.hidden = true;
@@ -166,9 +181,10 @@ import Base from '../layouts/Base.astro';
   .back-link {
     display: inline-block;
     color: var(--color-text-muted);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
     text-decoration: none;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
   }
 
   .back-link:hover {
@@ -176,63 +192,99 @@ import Base from '../layouts/Base.astro';
     opacity: 1;
   }
 
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    font-family: var(--font-body);
+    margin-bottom: 0.75rem;
+  }
+
+  h1 em {
+    color: var(--color-accent);
+    font-style: italic;
+  }
+
   form {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
+    gap: 0.875rem;
+    margin-top: 1.75rem;
+    max-width: 36rem;
   }
 
   textarea {
     width: 100%;
-    padding: 0.875rem 1rem;
+    padding: 1rem 1.125rem;
     border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    background-color: var(--color-surface);
+    border-radius: var(--radius-xl);
+    background-color: var(--color-surface-low);
     color: var(--color-text);
-    font-family: inherit;
+    font-family: var(--font-body);
     font-size: 1rem;
-    line-height: 1.6;
+    line-height: 1.7;
     resize: vertical;
     min-height: 120px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    box-sizing: border-box;
+  }
+
+  textarea::placeholder {
+    color: var(--color-text-muted);
   }
 
   textarea:focus {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 1px;
+    outline: none;
     border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(81, 100, 71, 0.1);
   }
 
   .datenschutz {
     color: var(--color-text-muted);
     font-size: 0.8125rem;
+    font-family: var(--font-body);
     margin-bottom: 0;
   }
 
-  button {
+  button[type="submit"] {
     align-self: flex-start;
     background-color: var(--color-accent);
     color: #fff;
     border: none;
-    border-radius: var(--radius);
-    padding: 0.75rem 1.5rem;
-    font-family: inherit;
-    font-size: 1rem;
+    border-radius: 9999px;
+    padding: 0.75rem 1.75rem;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
     cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 16px rgba(81, 100, 71, 0.2);
   }
 
-  button:hover:not(:disabled) { opacity: 0.85; }
-  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button[type="submit"]:hover:not(:disabled) {
+    transform: scale(1.03);
+    box-shadow: 0 6px 20px rgba(81, 100, 71, 0.28);
+    opacity: 1;
+  }
+
+  button[type="submit"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
   #result-area {
-    margin-top: 2rem;
+    margin-top: 2.5rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    max-width: 36rem;
   }
 
   #loading-text {
     color: var(--color-text-muted);
+    font-size: 0.9375rem;
     font-style: italic;
   }
 
@@ -247,53 +299,81 @@ import Base from '../layouts/Base.astro';
     color: var(--color-text-muted);
     line-height: 1.7;
     margin-bottom: 0;
+    font-family: var(--font-body);
   }
 
   .card {
     display: block;
-    background-color: var(--color-surface);
+    background-color: var(--color-surface-low);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    padding: 1.25rem;
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
     text-decoration: none;
     color: inherit;
-    transition: border-color 0.15s;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
 
   .card:hover {
     border-color: var(--color-accent);
+    box-shadow: 0 4px 24px rgba(81, 100, 71, 0.08);
     opacity: 1;
   }
 
   .card-meta {
     display: flex;
     gap: 0.5rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.875rem;
   }
 
   .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
     font-size: 0.75rem;
+    font-family: var(--font-body);
+    font-weight: 500;
+    letter-spacing: 0.03em;
     color: var(--color-text-muted);
-    background-color: var(--color-accent-light);
-    border-radius: 4px;
-    padding: 2px 8px;
+    background-color: var(--color-surface-high);
+    border-radius: var(--radius-lg);
+    padding: 3px 10px;
+  }
+
+  .tag .material-symbols-outlined {
+    font-size: 14px;
   }
 
   .card h2 {
     font-size: 1.125rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0;
+    color: var(--color-text);
+    font-family: var(--font-serif);
   }
 
-  .card p {
+  .alt-grund {
     font-size: 0.9375rem;
     color: var(--color-text-muted);
     margin-bottom: 0;
+    margin-top: 0.5rem;
+    line-height: 1.65;
+    font-family: var(--font-body);
   }
 
   .alternativen-label {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     color: var(--color-text-muted);
-    margin-bottom: 0.5rem;
+    font-family: var(--font-body);
+    margin-bottom: 0.75rem;
+  }
+
+  #alternativen-bereich {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 0.5rem;
   }
 
   #alternativen-liste {
@@ -302,14 +382,9 @@ import Base from '../layouts/Base.astro';
     gap: 0.75rem;
   }
 
-  #alternativen-liste .card p {
-    font-size: 0.9375rem;
-    color: var(--color-text-muted);
-    margin-bottom: 0;
-  }
-
   .error-text {
     color: #b94040;
     font-size: 0.9375rem;
+    font-family: var(--font-body);
   }
 </style>
