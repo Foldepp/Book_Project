@@ -1,0 +1,117 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Pause — Du bist genug">
+  <a href="/kapitel" class="back-link">&#8592; Zur&#252;ck zu den &#220;bungen</a>
+
+  <div class="eyebrow">Innezuhalten ist richtig</div>
+  <h1><em>Pause &#8212; zu viel?</em></h1>
+
+  <div class="content">
+    <p>
+      Manchmal bringt eine &#220;bung mehr an die Oberfl&#228;che, als wir erwartet haben.
+      Das ist kein Fehler &#8212; aber es ist ein Zeichen, jetzt innezuhalten.
+    </p>
+    <p>
+      Leg das Buch und die &#220;bung f&#252;r einen Moment beiseite.
+      Atme. Trink ein Glas Wasser. G&#246;nn dir eine Pause.
+    </p>
+    <p>
+      Wenn du merkst, dass dich das Gef&#252;hl nicht l&#228;sst, sprich mit jemandem,
+      dem du vertraust &#8212; oder wende dich an eine professionelle Begleitung.
+    </p>
+
+    <div class="support-card">
+      <div class="support-label">Telefonseelsorge &#8212; kostenlos, 24/7</div>
+      <div class="support-numbers">
+        <span>0800 111 0 111</span>
+        <span class="separator">|</span>
+        <span>0800 111 0 222</span>
+      </div>
+    </div>
+
+    <p>
+      Die &#220;bungen werden auf dich warten, wenn du bereit bist.
+      Du musst heute nichts leisten.
+    </p>
+  </div>
+</Base>
+
+<style>
+  .back-link {
+    display: inline-block;
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: none;
+    margin-bottom: 2rem;
+  }
+
+  .back-link:hover {
+    color: var(--color-text);
+    opacity: 1;
+  }
+
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    font-family: var(--font-body);
+    margin-bottom: 0.75rem;
+  }
+
+  h1 em {
+    color: var(--color-accent);
+    font-style: italic;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 36rem;
+    line-height: 1.8;
+    margin-top: 1.75rem;
+    font-size: 1.0625rem;
+    color: var(--color-text-muted);
+  }
+
+  .content p {
+    margin-bottom: 0;
+  }
+
+  .support-card {
+    background-color: var(--color-accent-light);
+    border-radius: var(--radius-xl);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .support-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    font-family: var(--font-body);
+  }
+
+  .support-numbers {
+    font-weight: 600;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .separator {
+    color: var(--color-text-muted);
+    font-weight: 300;
+  }
+</style>

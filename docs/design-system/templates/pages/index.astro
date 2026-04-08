@@ -1,0 +1,115 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Du bist genug">
+  <div class="home">
+    <div class="eyebrow">Audio-Begleitung zum Buch</div>
+    <h1>Du bist genug &mdash;<br /><em>aber das Gehirn wei&#223; es noch nicht</em></h1>
+    <p class="intro">
+      Sch&#246;n, dass du hier bist. Diese Seite begleitet dich durch die &#220;bungen aus dem Buch.
+      Such dir den Einstieg, der gerade am besten zu dir passt.
+    </p>
+    <nav class="entry-nav">
+      <a href="/kapitel" class="entry-btn">
+        <span class="entry-icon material-symbols-outlined">menu_book</span>
+        <span>Ich bin gerade im Buch</span>
+      </a>
+      <a href="/empfehlung" class="entry-btn">
+        <span class="entry-icon material-symbols-outlined">psychology</span>
+        <span>Ich m&#246;chte eine &#220;bung starten</span>
+      </a>
+      <a href="/kapitel" class="entry-btn">
+        <span class="entry-icon material-symbols-outlined">explore</span>
+        <span>Ich m&#246;chte mich erst orientieren</span>
+      </a>
+    </nav>
+  </div>
+</Base>
+
+<style>
+  .home {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-top: 2rem;
+  }
+
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    font-family: var(--font-body);
+  }
+
+  h1 {
+    font-size: 2.75rem;
+    line-height: 1.1;
+    margin-bottom: 0;
+  }
+
+  h1 em {
+    color: var(--color-accent);
+    font-style: italic;
+  }
+
+  @media (min-width: 640px) {
+    h1 { font-size: 3.75rem; }
+  }
+
+  .intro {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--color-text-muted);
+    max-width: 34rem;
+    margin-bottom: 0;
+  }
+
+  .entry-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .entry-btn {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: var(--color-surface-low);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1.125rem 1.5rem;
+    text-decoration: none;
+    color: var(--color-text);
+    font-size: 1rem;
+    font-weight: 500;
+    font-family: var(--font-body);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .entry-btn:hover {
+    border-color: var(--color-accent);
+    box-shadow: 0 4px 16px rgba(81, 100, 71, 0.08);
+    opacity: 1;
+  }
+
+  .entry-icon {
+    font-size: 20px;
+    color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 640px) {
+    .entry-nav {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .entry-btn {
+      flex: 1;
+      min-width: 200px;
+    }
+  }
+</style>

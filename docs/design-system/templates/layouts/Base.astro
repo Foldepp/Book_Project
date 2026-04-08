@@ -1,0 +1,157 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+<!doctype html>
+<html lang="de">
+  <head>
+    <BaseHead title={title} description={description} />
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="site-nav">
+        <a href="/" class="brand">Du bist genug</a>
+        <div class="nav-links">
+          <a href="/kapitel">&#220;bungen</a>
+          <a href="/empfehlung">Empfehlung</a>
+          <a href="/sicherheit">Pause</a>
+        </div>
+      </nav>
+    </header>
+
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <span class="footer-brand">Du bist genug</span>
+      <a href="/sicherheit" class="footer-safety">Pause &#8212; zu viel?</a>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: rgba(255, 252, 247, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .site-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .brand {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .brand:hover {
+    opacity: 0.8;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .nav-links a {
+    font-size: 0.875rem;
+    font-family: var(--font-body);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    letter-spacing: 0.01em;
+    transition: color 0.15s;
+  }
+
+  .nav-links a:hover {
+    color: var(--color-accent);
+    opacity: 1;
+  }
+
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.25;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .blob-1 {
+    width: 480px;
+    height: 480px;
+    top: 5%;
+    right: -8%;
+    background: linear-gradient(135deg, #d4e9c4 0%, #ece1d2 100%);
+  }
+
+  .blob-2 {
+    width: 560px;
+    height: 560px;
+    bottom: -15%;
+    left: -8%;
+    background: linear-gradient(135deg, #ece1d2 0%, #d4e9c4 100%);
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
+  }
+
+  .site-footer {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 1.5rem;
+    border-top: 1px solid var(--color-border);
+    margin-top: auto;
+  }
+
+  .footer-brand {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+
+  .footer-safety {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    letter-spacing: 0.01em;
+    border-bottom: 1px solid var(--color-border-solid);
+    padding-bottom: 1px;
+  }
+
+  .footer-safety:hover {
+    color: var(--color-text);
+    opacity: 1;
+  }
+</style>

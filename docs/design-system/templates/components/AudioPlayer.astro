@@ -1,0 +1,365 @@
+---
+interface Props {
+  audioSandra: string;
+  audioCarsten: string;
+  textalternative: string;
+}
+
+const { audioSandra, audioCarsten, textalternative } = Astro.props;
+const hasAudio = audioSandra.length > 0 || audioCarsten.length > 0;
+const hasBoth = audioSandra.length > 0 && audioCarsten.length > 0;
+const initialSrc = audioSandra || audioCarsten;
+
+const paragraphs = textalternative.split('\n\n').filter(Boolean);
+---
+
+{hasAudio ? (
+  <div class="player-bento">
+    {hasBoth && (
+      <div class="voice-toggle" role="group" aria-label="Stimme wählen">
+        <button class="voice-btn active" data-voice="sandra" type="button">Sandra</button>
+        <button class="voice-btn" data-voice="carsten" type="button">Carsten</button>
+      </div>
+    )}
+
+    <div class="controls-row">
+      <div class="skip-group">
+        <button id="replay-10" type="button" class="skip-btn" aria-label="10 Sekunden zurück">
+          <span class="material-symbols-outlined">replay_10</span>
+        </button>
+        <button id="forward-30" type="button" class="skip-btn" aria-label="30 Sekunden vor">
+          <span class="material-symbols-outlined">forward_30</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="main-controls">
+      <button id="play-btn" type="button" class="play-btn" aria-label="Abspielen">
+        <span class="material-symbols-outlined play-icon" id="play-icon">play_arrow</span>
+      </button>
+      <div class="progress-area">
+        <div class="time-row">
+          <span id="current-time" class="time">0:00</span>
+          <span id="duration" class="time">—</span>
+        </div>
+        <div class="progress-track" id="progress-track" role="progressbar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <audio id="chapter-audio" preload="metadata">
+      <source src={initialSrc} type="audio/mpeg" />
+    </audio>
+  </div>
+) : (
+  <div class="audio-placeholder">
+    <span class="material-symbols-outlined placeholder-icon">hourglass_empty</span>
+    <span>Die Audiodatei wird in K&#252;rze verf&#252;gbar sein.</span>
+  </div>
+)}
+
+<details class="text-alternative">
+  <summary>
+    <span>&#220;bungstext lesen</span>
+    <span class="material-symbols-outlined expand-icon">expand_more</span>
+  </summary>
+  <div class="text-content">
+    {paragraphs.map((p) => <p>{p}</p>)}
+  </div>
+</details>
+
+{hasAudio && (
+  <script define:vars={{ audioSandra, audioCarsten, hasBoth }}>
+    const audio = document.getElementById('chapter-audio');
+    const playBtn = document.getElementById('play-btn');
+    const playIcon = document.getElementById('play-icon');
+    const progressTrack = document.getElementById('progress-track');
+    const progressFill = document.getElementById('progress-fill');
+    const currentTimeEl = document.getElementById('current-time');
+    const durationEl = document.getElementById('duration');
+    const replay10 = document.getElementById('replay-10');
+    const forward30 = document.getElementById('forward-30');
+
+    function fmt(s) {
+      if (!isFinite(s) || s < 0) return '0:00';
+      const m = Math.floor(s / 60);
+      const sec = String(Math.floor(s % 60)).padStart(2, '0');
+      return `${m}:${sec}`;
+    }
+
+    audio.addEventListener('loadedmetadata', () => {
+      durationEl.textContent = fmt(audio.duration);
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      if (!audio.duration) return;
+      const pct = (audio.currentTime / audio.duration) * 100;
+      progressFill.style.width = pct + '%';
+      currentTimeEl.textContent = fmt(audio.currentTime);
+    });
+
+    audio.addEventListener('ended', () => {
+      playIcon.textContent = 'play_arrow';
+      playIcon.style.fontVariationSettings = "'FILL' 0";
+    });
+
+    playBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        playIcon.textContent = 'pause';
+        playIcon.style.fontVariationSettings = "'FILL' 1";
+      } else {
+        audio.pause();
+        playIcon.textContent = 'play_arrow';
+        playIcon.style.fontVariationSettings = "'FILL' 0";
+      }
+    });
+
+    progressTrack.addEventListener('click', (e) => {
+      const rect = progressTrack.getBoundingClientRect();
+      const pct = (e.clientX - rect.left) / rect.width;
+      audio.currentTime = pct * audio.duration;
+    });
+
+    replay10.addEventListener('click', () => {
+      audio.currentTime = Math.max(0, audio.currentTime - 10);
+    });
+
+    forward30.addEventListener('click', () => {
+      audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 30);
+    });
+
+    if (hasBoth) {
+      const sources = { sandra: audioSandra, carsten: audioCarsten };
+      const voiceBtns = document.querySelectorAll('.voice-btn');
+      voiceBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const voice = btn.dataset.voice;
+          const pos = audio.currentTime;
+          const wasPlaying = !audio.paused;
+          audio.src = sources[voice];
+          audio.load();
+          audio.currentTime = pos;
+          if (wasPlaying) audio.play();
+          voiceBtns.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
+      });
+    }
+  </script>
+)}
+
+<style>
+  .player-bento {
+    background-color: var(--color-surface-low);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-2xl);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .voice-toggle {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .voice-btn {
+    padding: 0.375rem 1.125rem;
+    border: 1px solid var(--color-border);
+    border-radius: 9999px;
+    background-color: var(--color-surface-high);
+    color: var(--color-text-muted);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+  }
+
+  .voice-btn.active {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-light);
+    color: var(--color-text);
+  }
+
+  .voice-btn:hover:not(.active) {
+    border-color: var(--color-accent);
+    color: var(--color-text);
+  }
+
+  .controls-row {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .skip-group {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .skip-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-surface-high);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: background-color 0.15s;
+  }
+
+  .skip-btn:hover {
+    background-color: var(--color-surface-highest);
+  }
+
+  .skip-btn .material-symbols-outlined {
+    font-size: 20px;
+  }
+
+  .main-controls {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .play-btn {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 9999px;
+    background-color: var(--color-accent);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 8px 24px rgba(81, 100, 71, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .play-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 32px rgba(81, 100, 71, 0.28);
+  }
+
+  .play-icon {
+    font-size: 2rem;
+  }
+
+  .progress-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .time-row {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .time {
+    font-size: 0.75rem;
+    font-family: var(--font-body);
+    font-weight: 500;
+    color: var(--color-text-muted);
+    letter-spacing: 0.04em;
+  }
+
+  .progress-track {
+    height: 6px;
+    background-color: var(--color-surface-highest);
+    border-radius: 9999px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0%;
+    background-color: var(--color-accent);
+    border-radius: 9999px;
+    transition: width 0.1s linear;
+  }
+
+  .audio-placeholder {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: var(--color-surface-low);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: 1.25rem 1.5rem;
+    color: var(--color-text-muted);
+    font-size: 0.9375rem;
+  }
+
+  .placeholder-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .text-alternative {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+  }
+
+  .text-alternative summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.125rem 1.5rem;
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--color-text-muted);
+    background-color: var(--color-surface-low);
+    user-select: none;
+    transition: color 0.15s;
+  }
+
+  .text-alternative summary::-webkit-details-marker { display: none; }
+
+  .text-alternative summary:hover {
+    color: var(--color-text);
+  }
+
+  .text-alternative[open] .expand-icon {
+    transform: rotate(180deg);
+  }
+
+  .expand-icon {
+    transition: transform 0.2s;
+    font-size: 20px;
+  }
+
+  .text-content {
+    padding: 1.5rem;
+    background-color: var(--color-surface-low);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .text-content p {
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    color: var(--color-text-muted);
+    margin-bottom: 0;
+  }
+</style>
