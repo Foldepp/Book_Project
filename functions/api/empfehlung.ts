@@ -43,7 +43,7 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
   }
 
   const models = [
-    'qwen/qwen3.6-plus:free',
+    'google/gemma-4-31b-it:free',
     'nvidia/nemotron-3-super-120b-a12b:free',
     'arcee-ai/trinity-large-preview:free',
   ];
@@ -70,7 +70,8 @@ export async function onRequestPost(context: { request: Request; env: Env }): Pr
     } catch {
       continue;
     }
-    if (response.status !== 429 && response.status !== 503) break;
+    if (response.ok) break;
+    if (response.status !== 429 && response.status !== 503 && response.status !== 404) break;
   }
 
   if (!response) {
